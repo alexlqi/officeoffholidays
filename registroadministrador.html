@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<!-- This site was created in Webflow. http://www.webflow.com-->
+<!-- Last Published: Fri May 20 2016 16:19:35 GMT+0000 (UTC) -->
+<html data-wf-site="5726902a9134bc281e40f5aa" data-wf-page="5726902a9134bc281e40f5ab">
+<head>
+  <meta charset="utf-8">
+  <title>Office Off</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Webflow">
+  <link rel="stylesheet" type="text/css" href="css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="css/webflow.css">
+  <link rel="stylesheet" type="text/css" href="css/officeoff.webflow.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
+  <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript" src="js/frontendFunctions.js"></script>
+  <script>
+    WebFont.load({
+      google: {
+        families: ["Merriweather:300,400,700,900","Varela Round:400"]
+      }
+    });
+	
+	function register()
+	{
+		var email1 = $("#EmailUsuarioR").val();
+		var email2 = $("#ConfirmarEmailUsuarioR").val();
+		var pass1 = $("#ContrasenaUsuarioR").val();
+		var pass2 = $("#ConfirmarContrasenaUsuarioR").val();
+		if(!((email1===email2)&&(pass1===pass2))&&(!changedPic))
+		{
+			if(email1!=email2)
+			{
+				$("span").text("Los correos no coinciden").show().fadeOut(3000);
+			}
+			if(pass1!=pass2)
+			{
+				$("span").text("Las contraseñas no coinciden").show().fadeOut(3000);
+			}
+			if(!changedPic)
+			{
+				$("span").text("No ha seleccionado imagen de perfil").show().fadeOut(3000);
+			}
+		}
+		else
+		{
+			var username = $("#NombresUsuarioR").val();
+			var userlastname = $("#ApellidosUsuarioR").val();
+			var usermail = $("#EmailUsuarioR").val();
+			var userPass = $("#ContrasenaUsuarioR").val();
+			var dataToSend = {action:"registro",usuario: username, contrasenia: userPass, apellido: userlastname, correo: usermail};
+			$.ajax({
+				url: "ws.php",
+				async: true,
+				type: "POST",
+				dataType: "json",
+				data: dataToSend,
+				success: function(data) {
+					if(data != null)
+					{
+						if(data < 0)
+						{
+							//console.log("error de registro, problema de query sql");
+							if(data == -1)
+								console.log("problema con query de alta");
+							if(data == -2)
+								console.log("problema con query de inicio de sesion para conseguir id");
+							if(data == -3)
+								console.log("no se pudo iniciar sesion para conseguir id");
+							if(data == -4)
+								console.log("problema al cambiar rol a administrador");
+							if(data == -5)
+								console.log("problema con query para ver si ya existe el usuario");
+							if(data == -6)
+							{
+								console.log("usuario ya existe");
+								$("span").text("Ese correo ya esta siendo usado").show().fadeOut(3000);
+							}
+						}
+						else
+						{
+							//upload image here, then redirect. data should carry userid for this purpose
+							if(changedPic)
+							{
+								//load picture here
+								var form = document.getElementById('AreaFormRegistro');
+								var fileSelect = document.getElementById('CargarImagenUsuarioRBoton');
+								var files = fileSelect.files;
+								var formData = new FormData();
+								for (var i = 0; i < files.length; i++) {
+									var file = files[i];
+									if (!file.type.match('image.*')) {
+										continue;
+									}
+									formData.append('photo', file, file.name);
+								}
+								formData.append('action','uploadImage');
+								formData.append('idusuario',data);
+								$.ajax({
+									url: 'ws.php',
+									type: 'POST',
+									data: formData,
+									cache: false,
+									dataType: 'json',
+									processData: false, // Don't process the files
+									contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+									success: function(data)
+									{
+										if(data != null)
+										{
+											if(data<1)
+											{
+												//error logging
+											}
+											else
+											{
+												console.log('photo uploaded successfully');
+												window.location="index.html";
+											}
+										}
+									},
+									error: function(jqXHR, textStatus, errorThrown)
+									{
+										console.log('ERRORS: ' + textStatus);
+									}
+								});
+							}
+						}
+						console.log(data);
+					}
+					else
+					{
+						console.log("error de registro, json nulo");
+					}
+				},
+				error: function(x,y,z)
+				{
+					alert("Error de comunicacion con el servidor:" + x + y + z);
+				}
+			});
+		}
+		
+		event.preventDefault();
+	}
+	
+	$(document).ready(function(){
+		$("#CargarImagenUsuarioRLink").on("click",function()
+			{
+				$("#CargarImagenUsuarioRBoton").trigger("click");
+			});
+		$("#CargarImagenUsuarioRBoton").change(newRegisterPic);
+		$("#AreaFormRegistro").on("submit",register);
+	});
+  </script>
+  <script type="text/javascript" src="js/modernizr.js"></script>
+  <link rel="shortcut icon" type="image/x-icon" href="https://daks2k3a4ib2z.cloudfront.net/img/favicon.ico">
+  <link rel="apple-touch-icon" href="https://daks2k3a4ib2z.cloudfront.net/img/webclip.png">
+</head>
+<body class="backgroundregistro">
+  <div id="EncabezadoNegro" class="w-section encabezadonegro"></div>
+  <div id="Container" class="w-container container">
+    <h1 id="Titulo1R" class="titulo1r">Regístrate con tu dirección de email</h1>
+    <div id="Texto1R" class="texto1r">_________________________________________________________
+      <br>Campos Obligatorios*</div>
+    <div class="w-form">
+      <form id="AreaFormRegistro" name="wf-form-AreaFormRegistro" enctype="multipart/form-data" data-name="AreaFormRegistro" method="post" class="w-clearfix areaformregistro"><img height="170" id="ImagenUsuarioR" src="images/perfil.gif" class="imagenusuario"><a href="#" id="CargarImagenUsuarioRLink" class="cargarimagenusuario">Cargar Imagen</a>
+		<input id="CargarImagenUsuarioRBoton" type="file" class="dontShow">
+        <input id="NombresUsuarioR" type="text" placeholder="Nombre(s)*" name="NombreUsuario" data-name="NombreUsuario" required="required" class="w-input input1r">
+        <input id="ApellidosUsuarioR" type="text" placeholder="Apellido(s)*" name="ApellidoUsuario" data-name="ApellidoUsuario" required="required" class="w-input input1r">
+        <input id="EmailUsuarioR" type="email" placeholder="Email*" name="EmailUsuario" data-name="EmailUsuario" required="required" class="w-input input1r">
+        <input id="ConfirmarEmailUsuarioR" type="email" placeholder="Confirmar Email*" name="ConfirmarEmail" data-name="ConfirmarEmail" required="required" class="w-input input1r">
+        <input id="ContrasenaUsuarioR" type="password" placeholder="Contraseña*" name="ContrasenaUsuario" data-name="ContrasenaUsuario" required="required" class="w-input input2r">
+        <input id="ConfirmarContrasenaUsuarioR" type="password" placeholder="Confirmar Contraseña*" name="ConfirmarContrasena" data-name="ConfirmarContrasena" required="required" class="w-input input2r">
+        <div id="AreaCheckR" class="w-checkbox w-clearfix areacheckr">
+          <input id="MostrarContrasenaCheckbox" type="checkbox" name="checkbox" data-name="Checkbox" class="w-checkbox-input checkboxe dontShow">
+          <!--<label id="MostrarContrasena" for="MostrarContrasenaCheckbox" class="w-form-label mostrarcontrasenar dontShow">Mostrar contraseña</label>-->
+        </div>
+        <div id="Texto2R" class="texto2r">Para registrarte, desbes de aceptar los&nbsp;<a class="linkverde" id="TerminosLink" href="terminosycondiciones.html">términos y condiciones</a>&nbsp;
+          <br>de la política de&nbsp;privacidad de Office Off.</div>
+        <input id="RegistrateBoton" type="submit" value="Regístrate" data-wait="Danos un momento, estamos trabajando..." data-ix="hover-effect" wait="Danos un momento, estamos trabajando..." class="w-button botonazul">
+		<br><span></span>
+      </form>
+      <div class="w-form-done"></div>
+      <div class="w-form-fail"></div>
+    </div>
+  </div>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script type="text/javascript" src="js/webflow.js"></script>
+  <!--[if lte IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/placeholders/3.0.2/placeholders.min.js"></script><![endif]-->
+</body>
+</html>

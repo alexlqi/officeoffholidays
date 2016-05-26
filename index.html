@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!-- This site was created in Webflow. http://www.webflow.com-->
+<!-- Last Published: Fri May 20 2016 16:19:35 GMT+0000 (UTC) -->
+<html data-wf-site="5726902a9134bc281e40f5aa" data-wf-page="572b953e993ba29730eb8f13">
+<head>
+  <meta charset="utf-8">
+  <title>PaginaDeInicio</title>
+  <meta property="og:title" content="PaginaDeInicio">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Webflow">
+  <link rel="stylesheet" type="text/css" href="css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="css/webflow.css">
+  <link rel="stylesheet" type="text/css" href="css/officeoff.webflow.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
+  <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+  <script>
+    WebFont.load({
+      google: {
+        families: ["Merriweather:300,400,700,900","Varela Round:400"]
+      }
+    });
+	
+	function login()
+	{
+		var userMail = $("#CorreoInicio").val();
+		var userPass = $("#ContrasenaInicio").val();
+		var dataToSend = {action:"login",usuario: userMail, contrasenia: userPass};
+		$.ajax({
+			url: "ws.php",
+			async: true,
+			type: "POST",
+			dataType: "json",
+			data: dataToSend,
+			success: function(data) {
+				//sabemos que en este caso el servicio responde con un JSON
+				if(data != null)
+				{
+					if(data == -1)
+					{
+						//alert("Password incorrecto.");
+						$("span").text( "Intenta de nuevo!" ).show().fadeOut(3000);
+					}
+					else
+					{
+						localStorage.setItem("correo",userMail);
+						localStorage.setItem("contrasenia",userPass);
+						localStorage.setItem("puesto",data);
+						//go to next page
+						if(localStorage.getItem("puesto") == 1)
+						{
+							//if admin
+							window.location="administrador.html";
+						}
+						else
+						{
+							//if usr
+							window.location="usuario2.html";
+						}
+						
+					}
+				}
+			},
+			error: function(x,y,z)
+			{
+				alert("Error de comunicacion con el servidor:" + x + y + z);
+			}
+		});
+		event.preventDefault();
+	}
+	
+	$(document).ready(function ()
+	{
+		$("#email-form").on("submit",login);
+	});
+  </script>
+  <script type="text/javascript" src="js/modernizr.js"></script>
+  <link rel="shortcut icon" type="image/x-icon" href="https://daks2k3a4ib2z.cloudfront.net/img/favicon.ico">
+  <link rel="apple-touch-icon" href="https://daks2k3a4ib2z.cloudfront.net/img/webclip.png">
+</head>
+<body class="backgroundinicio">
+  <div id="EncabezadoNegro" class="w-section encabezadonegro"></div>
+  <div id="Container" class="w-container container"><a target="_blank" id="EntrarLink" data-ix="entrar" class="entrarlink">entrar</a>
+    <div id="AreaFormInicioSesion" class="iniciosesion"><img width="100" src="images/CuadroBlanco_2.png" class="triangulo">
+      <div class="w-form areaforminicio">
+        <form id="email-form" name="email-form" data-name="Email Form" method="post" class="areaforminicio">
+          <input id="CorreoInicio" type="email" placeholder="Correo electrónico" name="CorreoInicio" data-name="CorreoInicio" required="required" autofocus="autofocus" class="w-input input0">
+          <input id="ContrasenaInicio" type="password" placeholder="Contraseña" name="ContrasenaInicio" data-name="ContrasenaInicio" required="required" class="w-input input0">
+          <input id="EntrarBoton" type="submit" value="Entrar" data-wait="Danos un momento, estamos trabajando..." wait="Danos un momento, estamos trabajando..." data-ix="hover-effect" class="w-button cargarbdboton">
+		  <br><span></span>
+        </form>
+        <div class="w-form-done"></div>
+        <div class="w-form-fail"></div>
+      </div>
+    </div>
+    <div id="Titulo1Inicio" class="titulo1inicio">Somos un portal web donde podrás
+      <br>administrar las vacaciones de tus empleados.</div>
+  </div><img width="600" id="AreaBlancaRegistro" src="images/imagen1.png" class="areablancaregistro">
+  <div id="SeccionDeRegistro" class="w-section seccionderegistro">
+    <div id="Texto1Inicio" class="texto1inicio">No pierdas más tiempo
+      <br>Empieza ahora</div>
+    <a href="registroadministrador.html" target="_blank" id="UneteBoton" data-ix="hover-effect" class="w-inline-block uneteboton"></a><a href="registroadministrador.html" target="_blank" id="UneteLink" data-ix="hover-effect" class="unetelink">¡Únete!</a>
+  </div>
+  <div id="BackgroundInfo" class="w-section backgroundinfo">
+    <div id="SliderInfo" data-animation="slide" data-duration="700" data-infinite="1" data-delay="5200" data-autoplay="1" class="w-slider sliderinicio">
+      <div class="w-slider-mask">
+        <div id="Slide1I" class="w-slide">
+          <div id="TituloInfo1" data-ix="scroll" class="acercadetexto">Acerca de nosotros...</div>
+          <div id="DivInfo" data-ix="scroll" class="w-clearfix divinfo">
+            <h1 id="Texto1Info" class="titulo1info">Podrás especificar los datos de tu propia empresa, tales como:</h1><img id="Imagen1Info" src="images/LogoApp.png" class="logoimagen"><img height="220" id="Imagen2Info" src="images/officeoff.png" class="nombreempresainfo"><img id="Imagen3Info" src="images/calendario.png" class="calendarioinfo">
+            <div id="Texto2Info" class="texto1info">Logotipo</div>
+            <div id="Texto3Info" class="texto2info">Nombre de tu empresa</div>
+            <div id="Texto4Info" class="texto3info">Días de descanso</div>
+          </div>
+        </div>
+        <div id="Slide2I" class="w-slide">
+          <div id="TituloInfo2" data-ix="scroll" class="acercadetexto">Acerca de nosotros...</div>
+          <div id="DivInfo2" data-ix="scroll" class="divinfo">
+            <h1 id="Texto5Info" data-ix="scroll" class="titulo1info">Podrás solicitar vacaciones de manera rápida y sencilla.</h1><img id="SVImagen" src="images/2.PNG" class="svimagen">
+          </div>
+        </div>
+        <div id="Slide3I" class="w-slide">
+          <div id="TituloInfo3" data-ix="scroll" class="acercadetexto">Acerca de nosotros...</div>
+          <div id="DivInfo2" data-ix="scroll" class="divinfo">
+            <h1 id="Texto6Info" class="titulo1info">También podrás ver el estado de tus solicitudes.</h1><img id="MSImagen" src="images/3.PNG" class="svimagen">
+          </div>
+        </div>
+        <div id="Slide4I" class="w-slide">
+          <div id="TituloInfo4" data-ix="scroll" class="acercadetexto">Acerca de nosotros...</div>
+          <div id="DivInfo2" data-ix="scroll" class="divinfo">
+            <h1 id="Texto7Info" class="titulo1info">Además, podrás administrar las solicitudes de tus colaboradores.</h1><img id="SPImagen" src="images/4.PNG" class="svimagen">
+          </div>
+        </div>
+        <div id="Slide5I" class="w-slide">
+          <div id="TituloInfo5" data-ix="scroll" class="acercadetexto">Acerca de nosotros...</div>
+          <div id="DivInfo2" data-ix="scroll" class="w-clearfix divinfo">
+            <h1 id="Texto8Info" class="titulo1info">Y te ofrecemos las principales páginas para organizar tus vacaciones:</h1>
+            <a href="http://www.despegar.com.mx/" target="_blank" id="DespegarLink" data-ix="hover-effect" class="w-inline-block despegar"></a>
+            <a href="http://www.trivago.com.mx/" target="_blank" id="TrivagoLink" data-ix="hover-effect" class="w-inline-block trivago"></a>
+            <a href="http://www.hoteles.com/" target="_blank" id="HotelesLink" data-ix="hover-effect" class="w-inline-block hoteles"></a>
+          </div>
+        </div>
+      </div>
+      <div id="LA" class="w-slider-arrow-left">
+        <div class="w-icon-slider-left"></div>
+      </div>
+      <div id="RA" class="w-slider-arrow-right">
+        <div class="w-icon-slider-right"></div>
+      </div>
+      <div id="SlideNav" class="w-slider-nav w-slider-nav-invert w-round"></div>
+    </div>
+    <div id="TextoPie" class="textopie">Copyright © 2016 Office Off. Todos los derechos reservados.</div>
+  </div>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script type="text/javascript" src="js/webflow.js"></script>
+  <!--[if lte IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/placeholders/3.0.2/placeholders.min.js"></script><![endif]-->
+</body>
+</html>

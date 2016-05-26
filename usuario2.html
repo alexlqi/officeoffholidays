@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!-- This site was created in Webflow. http://www.webflow.com-->
+<!-- Last Published: Fri May 20 2016 16:19:35 GMT+0000 (UTC) -->
+<html data-wf-site="5726902a9134bc281e40f5aa" data-wf-page="573f2e44688016c816c7ba6d">
+<head>
+  <meta charset="utf-8">
+  <title>Usuario2</title>
+  <meta property="og:title" content="Usuario2">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="generator" content="Webflow">
+  <link rel="stylesheet" type="text/css" href="css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="css/webflow.css">
+  <link rel="stylesheet" type="text/css" href="css/officeoff.webflow.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
+  <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript" src="js/frontendFunctions.js"></script>
+  <script>
+    WebFont.load({
+      google: {
+        families: ["Merriweather:300,400,700,900","Varela Round:400"]
+      }
+    });
+	
+	$(document).ready(function(){
+		if((localStorage.getItem("puesto") === null)||(localStorage.getItem("puesto")==1))
+		{
+			console.log("logging out");
+			logout();
+		}
+		else
+		{
+			//cargar info completa de usuario
+			loadUser();
+			$("#SalirLink").on("click",logout);
+			$("#CargarImagenUsuarioEditarLink").on("click",function()
+			{
+				$("#CargarImagenUsuarioEditarBoton").trigger("click");
+			});
+			$("#CargarImagenUsuarioEditarBoton").change(newUserPic);
+		}
+	});
+  </script>
+  <script type="text/javascript" src="js/modernizr.js"></script>
+  <link rel="shortcut icon" type="image/x-icon" href="https://daks2k3a4ib2z.cloudfront.net/img/favicon.ico">
+  <link rel="apple-touch-icon" href="https://daks2k3a4ib2z.cloudfront.net/img/webclip.png">
+</head>
+<body class="backgroundprincipal">
+  <div id="EncabezadoNegro" class="w-section encabezadonegro"></div>
+  <div id="ContainerMenu" class="w-container containermenu">
+    <div id="Bienvenido" class="bienvenido">Bienvenido, <span id="NombreUsuarioB"></span>&nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div><a href="" id="SalirLink" data-ix="hover-salir" class="salirlink">Salir</a>
+    <div id="InformacionUsuario" class="informacionusuario">Días generados: <span class="diasgenerados" id="DiasGenerados">10</span>&nbsp; &nbsp; | &nbsp; Días Usados: <span class="diasusados" id="DiasUsados">10</span>&nbsp; &nbsp; | &nbsp; &nbsp;Días Disponible: <span class="diasdisponibles" id="DiasDisponibles">0</span>
+    </div>
+    <div id="SeccionCuadroBlanco" class="w-section seccioncuadroblanco">
+      <div id="CuadroBlanco" class="cuadroblanco"></div>
+    </div>
+    <div id="SeccionMenu" data-duration-in="300" data-duration-out="100" class="w-tabs seccionmenu">
+      <div id="MenuPrincipal" class="w-tab-menu menuprincipal">
+        <a id="MisSolicitudesLink" data-w-tab="MisSolicitudes" data-ix="hover-tab" class="w-tab-link w-inline-block tablink design1">
+          <div>Mis Solicitudes</div>
+        </a>
+        <a id="SolicitarVacacionesLink" data-w-tab="SolcitarVacaciones" data-ix="hover-tab" class="w-tab-link w-inline-block tablink design1">
+          <div>Solicitar Vacaciones</div>
+        </a>
+        <a id="CuentaLink" data-w-tab="Cuenta" data-ix="hover-salir" class="w-tab-link w--current w-inline-block tabcuentalink">
+          <div id="MiCuentaLink">Mi cuenta</div>
+        </a>
+      </div>
+      <div id="MenuPanel" class="w-tab-content menupanel">
+        <div id="MisSolicitudesTab" data-w-tab="MisSolicitudes" class="w-tab-pane w-clearfix tabpanel">
+          <h1 id="MisSolicitudesTitulo" class="tabpaneltitulo">Mis Solicitudes</h1>
+          <div id="MSLabel" class="mslabel">Días Solicitados &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Días Hábiles &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Estado de la solicitud</div>
+          <div id="DiasSolicitadosMSDiv" class="dsmsdiv">16/Abril/2016 a 18/Abril/2016</div>
+          <div id="DiasHabilesMSDiv" class="dhmsdiv">2</div>
+          <div id="EstadoSolicitudMSDiv" class="esmsdiv">Pendiente</div>
+        </div>
+        <div id="SolicitarVacacionesTab" data-w-tab="SolcitarVacaciones" class="w-tab-pane tabpanel">
+          <h1 id="SolicitarVacacionesTitulo" class="tabpaneltitulo">Solicitar Vacaciones</h1>
+          <div data-animation="slide" data-duration="500" data-infinite="1" class="w-slider slider">
+            <div class="w-slider-mask">
+              <div id="Slide1SV" class="w-slide w-clearfix">
+                <div id="Texto1SV" class="texto1sv">Tus vacaciones inician el: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Tus vacaciones terminan el:</div>
+                <div id="CalendarioInicial" class="calendarioinicial"></div>
+                <div id="CalendarioFinal" class="calendariofinal"></div>
+                <div id="Texto2SV" class="texto2sv">Tus vacaciones serían del<span id="FechaInicial" class="cursivatexto"> fecha inicial</span> al<span id="FechaFinal" class="cursivatexto"> fecha final</span>
+                  <br>Total de <span id="TotalDiasHabiles" class="cursivatexto">5 </span>días. Días disponibles: <span class="cursivatexto" id="SaldoFinal">5</span>.</div><a href="#" id="SolicitarVacacionesBoton" data-ix="hover-effect" class="w-button botonazul">Solicitar</a>
+                <div id="EncargadoInfo" class="avisosv">El encargado en autorizar tus vacaciones será
+                  <br><span class="encargadodesign" id="EncargadoVacaciones">Nombre del encargado</span>
+                </div>
+              </div>
+              <div id="Slide2SV" class="w-slide w-clearfix">
+                <div id="Texto3SV" class="texto3sv">Te mostramos las solicitudes realizadas por tus compañeros de departamento,
+                  <br>para que las reconsideres al momento de solicitar tus vacaciones.</div>
+                <div id="Texto4SV" class="texto4sv">Nombre del Empleado &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Fechas Solicitadas</div>
+                <div id="EmpleadoSVDiv" class="empleadosv">Nathalia Itzel Sepúlveda Rosas</div>
+                <div id="FechasSVDiv" class="fechassv">16/Abril/2016 a 18/Abril/2016</div>
+              </div>
+            </div>
+            <div id="LeftArrowSV" class="w-slider-arrow-left leftarrow">
+              <div class="w-icon-slider-left"></div>
+            </div>
+            <div id="RightArrowSV" class="w-slider-arrow-right rigtharrow">
+              <div class="w-icon-slider-right"></div>
+            </div>
+            <div class="w-slider-nav w-slider-nav-invert w-round slidenav"></div>
+          </div>
+        </div>
+        <div id="CuentaTab" data-w-tab="Cuenta" class="w-tab-pane w--tab-active">
+          <h1 id="MiCuentaTitulo" class="tabpaneltitulo">Mi cuenta</h1>
+          <div class="w-form">
+            <form id="AreaFormMiCuenta" name="email-form" data-name="Email Form" method="post" class="w-clearfix areaformcuenta"><img width="207" height="207" id="ImagenUsuarioEditar" src="images/perfil.gif" class="imagenusuarioeditar"><a href="#" id="CargarImagenUsuarioEditarLink" class="cargarimagenusuarioeditar">Cambiar Imagen</a>
+			  <input id="CargarImagenUsuarioEditarBoton" type="file" class="dontShow">
+              <label id="NombresUsuarioLabel" for="NombresUsuarioEditar" class="cuenta1label">Nombre(s):</label>
+              <input id="NombresUsuarioEditar" type="text" placeholder="Nombre(s)" name="NombresUsuarioEditar" data-name="NombresUsuarioEditar" autofocus="autofocus" class="w-input input3c">
+              <label id="ApellidosUsuarioLabel" for="ApellidosUsuarioEditar" class="cuenta2label">Apellido(s):</label>
+              <input id="ApellidosUsuarioEditar" type="text" placeholder="Apellido(s)" name="ApellidosUsuarioEditar" data-name="ApellidosUsuarioEditar" class="w-input input4c">
+              <label id="EmaiUsuariolLabel" for="EmailUsuarioEditar" class="cuenta1label">Email:</label>
+              <input id="EmailUsuarioEditar" type="email" placeholder="Email" name="EmailUsuarioEditar" data-name="EmailUsuarioEditar" required="required" class="w-input input3c">
+              <label id="ContrasenaUsuarioLabel" for="ContrasenaUsuarioEditar" class="cuenta2label">Contraseña:</label>
+              <input id="ContrasenaUsuarioEditar" type="password" placeholder="Contraseña" name="ContrasenaUsuarioEditar" data-name="ContrasenaUsuarioEditar" required="required" class="w-input input4c">
+              <label id="DepartamentoEmpleadoLabel" for="DepartamentoEmpleado" class="cuenta1label">Departamento:</label>
+              <input id="DepartamentoEmpleado" type="text" placeholder="Departamento del Empleado" name="DepartamentoEmpleado" data-name="DepartamentoEmpleado" class="w-input input3c">
+              <input id="NumeroEmpleado" type="text" placeholder="Número de Empleado" name="NumeroEmpleado" data-name="NumeroEmpleado" class="w-input input4c">
+              <label id="NumeroEmpleadoLabel" for="ApellidosUsuarioEditar" class="cuenta2label">Número de Empleado:</label>
+              <input id="GuardarCuentaBoton" type="submit" value="Guardar" data-wait="Danos un momento, estamos trabajando..." data-ix="hover-effect" wait="Danos un momento, estamos trabajando..." class="w-button botonazulc">
+            </form>
+            <div class="w-form-done"></div>
+            <div class="w-form-fail"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script type="text/javascript" src="js/webflow.js"></script>
+  <!--[if lte IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/placeholders/3.0.2/placeholders.min.js"></script><![endif]-->
+</body>
+</html>
