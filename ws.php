@@ -1,4 +1,11 @@
-<?php
+<?php session_start();
+include("funciones.php");
+//necesitamos poner un debug para ver lo que sucede
+
+//variables generales
+$primerDiaAnio=date("Y")."-01-01 00:00:00";//primer dia del año
+$ultimoDiaAnio=date("Y")."-12-31 23:59:59";
+
 	if(isset($_POST['action']))
 	{
 		$action = $_POST['action'];
@@ -7,62 +14,68 @@
 	{
 		$action = $_GET['action'];
 	}
-	//$action = $_POST['action'];
 
-	if ($action == "registro") 
-	{
-		registro();
-	}
-	else if($action == "imagen")
-	{
-		imagen();
-	}
-	else if ($action == "login")
-	{	
-		login();
-	}
-	else if ($action == "logout")
-	{
-		if(isset($_SESSION['idUsuario']))
-		{
-			session_unset();
-			session_destroy();
-		}
-		echo 1;
-	}
-	else if ($action == "onboardingCompleto")
-	{
-		checkOnBoarding();
-	}
-	else if ($action == "agregarSolicitud")
-	{
-		agregarSolicitud(); //modificar ya que missia pase la correccion del SP
-	}
-	else if ($action == "mostrarSolicitudesDept")
-	{
-		//
-	}
-	else if ($action == "mostrarSolicitudesUsuario")
-	{
-		//
-	}
-	else if ($action == "autorizarSolicitud")
-	{
-		autorizarSolicitud();
-	}
-	else if ($action == "cargarUsuario")
-	{
-		cargarUsuario();
-	}
-	else if($action == "uploadImage")
-	{
-		uploadImage();
-	}
-	else
-	{
-		echo 'lel';
+	switch($action){
+		case 'registro':
+			registro();
+		break;
+		case 'imagen':
+			imagen();
+		break;
+		case 'login':
+			login();
+		break;
+		case 'logout':
+			if(isset($_SESSION['idUsuario']))
+			{
+				session_unset();
+				session_destroy();
+			}
+			echo 1;
+		break;
+		case 'onboardingCompleto':
+			checkOnBoarding();
+		break;
+		case 'agregarSolicitud':
+			agregarSolicitud(); //modificar ya que missia pase la correccion del SP
+		break;
+		case 'mostrarSolicitudesDept':
+			//falta
+		break;
+		case 'mostrarSolicitudesUsuario':
+			//falta
+		break;
+		case 'autorizarSolicitud':
+			autorizarSolicitud();
+		break;
+		case 'cargarUsuario':
+			cargarUsuario();
+		break;
+		case 'uploadImage':
+			uploadImage();
+		break;
+		case 'diasDisponibles':
+			diasDisponibles();
+		break;
+		case 'getEncargado':
+			header("content-type: application/json");
+			getEncargado();
+		break;
+		case 'diasUsados':
+			header("content-type: application/json");
+			diasUsados();
+		break;
+		case 'diasGenerados':
+			header("content-type: application/json");
+			diasGenerados();
+		break;
+		default:
+			echo 'lel';
+		break;
 	}
 
+	//connect regresa el objeto mysqli para ser utilizado con la conexión
+	//debe cerrarse la conexión al terminar cada proceso con disconnect($mysqli);
 	function connect() {
 		$databasehost = "localhost";
 		$databasename = "programacionmultimedia";
@@ -97,6 +110,83 @@
 		}
 	}
 	
+	function diasUsados(){
+		global $primerDiaAnio,$ultimoDiaAnio;
+		$uid=$_SESSION["idUsuario"];
+		$mysqli = connect();
+		$sql="SELECT * FROM solicitud WHERE idSolicitante=$uid AND estado=1 AND FechaInicio >= '$primerDiaAnio' AND FechaFin <='$ultimoDiaAnio';";
+		$result=$mysqli->query($sql);
+		$fechas=array();
+		$row=mysqli_fetch_all($result,MYSQLI_ASSOC);
+		$fechas["total"]=0;
+		if($result){
+			foreach($row as $i=>$d){
+				$fechas["dias"][$d["idSolicitud"]]=date("z",strtotime($d["fechaFin"]))*1-date("z",strtotime($d["fechaInicio"]))*1 +1;
+				$fechas["total"]+=$fechas["dias"][$d["idSolicitud"]];
+			}
+			$row=$fechas;
+		}else{
+			$row=array($sql);
+		}
+		echo json_encode($row);
+	}
+	
+	function diasGenerados(){
+		$eid=$_SESSION["idEmpresa"];
+		//maxDiasVacacionalesAnuales;
+		$mysqli = connect();
+		$sql="SELECT maxDiasVacacionalesAnuales as generados FROM empresa WHERE idEmpresa=$eid;";
+		$result=$mysqli->query($sql);
+		$row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+		echo json_encode($row);
+		
+	}
+	function diasDisponibles(){
+		global $primerDiaAnio,$ultimoDiaAnio;
+		$uid=$_SESSION["idUsuario"];
+		$eid=$_SESSION["idEmpresa"];
+		$mysqli = connect();
+		
+		//maximos
+		$sql="SELECT maxDiasVacacionalesAnuales as generados FROM empresa WHERE idEmpresa=$eid;";
+		$result=$mysqli->query($sql);
+		$row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+		$generados=$row["generados"];
+		
+		//usados
+		$sql="SELECT * FROM solicitud WHERE idSolicitante=$uid AND estado=1 AND FechaInicio >= '$primerDiaAnio' AND FechaFin <='$ultimoDiaAnio';";
+		$result=$mysqli->query($sql);
+		$fechas=array();
+		$row=mysqli_fetch_all($result,MYSQLI_ASSOC);
+		$usados=0;
+		if($result){
+			foreach($row as $i=>$d){
+				$usados+=date("z",strtotime($d["fechaFin"]))*1-date("z",strtotime($d["fechaInicio"]))*1 +1;
+			}
+		}
+		
+		//disponibles
+		$disponibles=$generados-$usados;
+		
+		echo $disponibles;
+	}
+	
+	function getEncargado(){
+		$uid=$_SESSION["idUsuario"];
+		$eid=$_SESSION["idEmpresa"];
+		$did=$_SESSION["idDepartamento"];
+		$mysqli = connect();
+		$sql="SELECT
+	u.idUsuario as idAdministrador,
+    concat(u.nombreUsuario,' ',u.apellidosUsuario) as nombre
+FROM usuario u
+WHERE
+	u.idUsuario=(SELECT s1.idAdministrador FROM departamento s1 WHERE s1.idEmpresa=$eid AND s1.idDepartamento=$did);";
+		$result=$mysqli->query($sql);
+		$row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+		echo json_encode($row);
+	}
+	
 	function login()
 	{
 		$user = $_POST["usuario"];
@@ -112,7 +202,6 @@
 			$row=mysqli_fetch_array($result,MYSQLI_NUM);
 			if($row[0]>0)
 			{
-				session_start();
 				$_SESSION["idUsuario"] = $row[0];
 				$_SESSION["nombreUsuario"] = $row[1];
 				$_SESSION["apellidosUsuario"] = $row[2];

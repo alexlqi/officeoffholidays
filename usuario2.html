@@ -13,6 +13,10 @@
   <link rel="stylesheet" type="text/css" href="css/officeoff.webflow.css">
   <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
   <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript" src="jqueryui/jquery-ui.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="jqueryui/jquery-ui.min.css">
+  <link rel="stylesheet" type="text/css" href="jqueryui/jquery-ui.structure.min.css">
+  <link rel="stylesheet" type="text/css" href="jqueryui/jquery-ui.theme.min.css">
   <script type="text/javascript" src="js/frontendFunctions.js"></script>
   <script>
     WebFont.load({
@@ -20,8 +24,56 @@
         families: ["Merriweather:300,400,700,900","Varela Round:400"]
       }
     });
-	
+	var fechas={"#FechaInicial":"","#FechaFinal":""};
+	var diffDias=0;
+	var dispDias=0;
+	var ausarDias=0;
+	var saldoDias=0;
+	var usedDias=0;
+	var encargado="";
+	var genDias=0;
 	$(document).ready(function(){
+		// para sacar los dias de la base de datos
+		diasDisponibles();
+		//obtiene el encargado
+		getEncargado();
+		//dias generados
+		diasGenerados()
+		//dias usados
+		diasUsados();
+		
+		$(window).keyup(function(e) {
+            if(e.keyCode==13){
+				diasUsados();
+			}
+        });
+		
+		$(".calendario").datepicker({
+			dateFormat:"dd-mm-yy",
+			onSelect:function(fecha){
+				$($(this).attr("data-ref")).html(fecha);
+				fechas[$(this).attr("data-ref")]=fecha;
+				if(fechas["#FechaFinal"]!=""){
+					diffDays();
+					$("#TotalDiasHabiles").html(diffDias);
+					saldoFinal=dispDias-diffDias;
+					if(saldoFinal>=0){
+						$("#SaldoFinal").addClass("greenText");
+						$("#SaldoFinal").removeClass("redText");
+						$("#SaldoFinal").html(saldoFinal);
+					}else{
+						$("#SaldoFinal").addClass("redText");
+						$("#SaldoFinal").removeClass("greenText");
+						$("#SaldoFinal").html("Limite excedido");
+					}
+				}
+			}
+		});
+		
+		$("#SolicitarVacacionesBoton").click(function(e) {
+			
+        });
+		
 		if((localStorage.getItem("puesto") === null)||(localStorage.getItem("puesto")==1))
 		{
 			console.log("logging out");
@@ -39,6 +91,86 @@
 			$("#CargarImagenUsuarioEditarBoton").change(newUserPic);
 		}
 	});
+	
+	function diasDisponibles(){
+		$.ajax({
+			url:'ws.php',
+			cache:false,
+			type:'POST',
+			data:{
+				action:'diasDisponibles',
+			},
+			success: function(r){
+				dispDias=r;
+				$(".diasdisponibles").html(dispDias);
+				saldoFinal=r;
+				$("#SaldoFinal").html(saldoFinal);
+			}
+		});
+	}
+	
+	function diasGenerados(){
+		$.ajax({
+			url:'ws.php',
+			cache:false,
+			type:'POST',
+			data:{
+				action:'diasGenerados',
+			},
+			success: function(r){
+				genDias=r.generados;
+				$("#DiasGenerados").html(genDias);
+			}
+		});
+	}
+	
+	function diasUsados(){
+		$.ajax({
+			url:'ws.php',
+			cache:false,
+			type:'POST',
+			data:{
+				action:'diasUsados',
+			},
+			success: function(r){
+				usedDias=r.total;
+				$("#DiasUsados").html(usedDias);
+			}
+		});
+	}
+	
+	function getEncargado(){
+		$.ajax({
+			url:'ws.php',
+			cache:false,
+			type:'POST',
+			data:{
+				action:'getEncargado',
+			},
+			success: function(r){
+				//console.log(r);
+				encargado=r.nombre;
+				$("#EncargadoVacaciones").html(encargado);
+			}
+		});
+	}
+	
+	function diffDays(){
+		var date1 = fechas["#FechaInicial"].split("-");
+		var date2 = fechas["#FechaFinal"].split("-");
+		date1 = date1[1]+"/"+date1[0]+"/"+date1[2];
+		date2 = date2[1]+"/"+date2[0]+"/"+date2[2];
+		date1 = new Date(date1);
+		date2 = new Date(date2);
+		time1=date1.getTime();
+		time2=date2.getTime();
+		if(time2>time1){
+			var timeDiff = Math.abs(time2-time1);
+			diffDias = Math.ceil(timeDiff / (1000 * 3600 * 24))+1;
+		}else{
+			diffDias = 0;
+		}
+	}
   </script>
   <script type="text/javascript" src="js/modernizr.js"></script>
   <link rel="shortcut icon" type="image/x-icon" href="https://daks2k3a4ib2z.cloudfront.net/img/favicon.ico">
@@ -48,7 +180,7 @@
   <div id="EncabezadoNegro" class="w-section encabezadonegro"></div>
   <div id="ContainerMenu" class="w-container containermenu">
     <div id="Bienvenido" class="bienvenido">Bienvenido, <span id="NombreUsuarioB"></span>&nbsp; &nbsp; &nbsp;| &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div><a href="" id="SalirLink" data-ix="hover-salir" class="salirlink">Salir</a>
-    <div id="InformacionUsuario" class="informacionusuario">Días generados: <span class="diasgenerados" id="DiasGenerados">10</span>&nbsp; &nbsp; | &nbsp; Días Usados: <span class="diasusados" id="DiasUsados">10</span>&nbsp; &nbsp; | &nbsp; &nbsp;Días Disponible: <span class="diasdisponibles" id="DiasDisponibles">0</span>
+    <div id="InformacionUsuario" class="informacionusuario">Días generados: <span class="diasgenerados" id="DiasGenerados">10</span>&nbsp; &nbsp; | &nbsp; Días Usados: <span class="diasusados" id="DiasUsados">0</span>&nbsp; &nbsp; | &nbsp; &nbsp;Días Disponible: <span class="diasdisponibles" id="DiasDisponibles">0</span>
     </div>
     <div id="SeccionCuadroBlanco" class="w-section seccioncuadroblanco">
       <div id="CuadroBlanco" class="cuadroblanco"></div>
@@ -74,18 +206,32 @@
           <div id="EstadoSolicitudMSDiv" class="esmsdiv">Pendiente</div>
         </div>
         <div id="SolicitarVacacionesTab" data-w-tab="SolcitarVacaciones" class="w-tab-pane tabpanel">
-          <h1 id="SolicitarVacacionesTitulo" class="tabpaneltitulo">Solicitar Vacaciones</h1>
           <div data-animation="slide" data-duration="500" data-infinite="1" class="w-slider slider">
             <div class="w-slider-mask">
               <div id="Slide1SV" class="w-slide w-clearfix">
-                <div id="Texto1SV" class="texto1sv">Tus vacaciones inician el: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Tus vacaciones terminan el:</div>
-                <div id="CalendarioInicial" class="calendarioinicial"></div>
-                <div id="CalendarioFinal" class="calendariofinal"></div>
-                <div id="Texto2SV" class="texto2sv">Tus vacaciones serían del<span id="FechaInicial" class="cursivatexto"> fecha inicial</span> al<span id="FechaFinal" class="cursivatexto"> fecha final</span>
-                  <br>Total de <span id="TotalDiasHabiles" class="cursivatexto">5 </span>días. Días disponibles: <span class="cursivatexto" id="SaldoFinal">5</span>.</div><a href="#" id="SolicitarVacacionesBoton" data-ix="hover-effect" class="w-button botonazul">Solicitar</a>
-                <div id="EncargadoInfo" class="avisosv">El encargado en autorizar tus vacaciones será
-                  <br><span class="encargadodesign" id="EncargadoVacaciones">Nombre del encargado</span>
-                </div>
+              	<style>
+					#Slide1SV{
+					}
+					.tabla1SV{
+						margin:1% auto;
+					}
+                </style>
+              	<table class="tabla1SV">
+                	<tr><td colspan="3"><h1 id="SolicitarVacacionesTitulo" class="tabpaneltitulo">Solicitar Vacaciones</h1></td></tr>
+                	<tr>
+                    	<th>Tus vacaciones inician el:</th>
+                        <th>Tus vacaciones terminan el:</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                    	<td><div class="calendario" data-ref="#FechaInicial"></div></td>
+                        <td><div class="calendario" data-ref="#FechaFinal"></div></td>
+                        <td>
+                        	<div id="Texto2SV" class="texto2sv">Tus vacaciones serían del<span id="FechaInicial" class="cursivatexto">fecha inicial</span>al<span id="FechaFinal" class="cursivatexto">fecha final</span><br>Total de<span id="TotalDiasHabiles" class="cursivatexto">0</span>días. Días disponibles: <span class="cursivatexto" id="SaldoFinal">5</span>.<a href="#" id="SolicitarVacacionesBoton" data-ix="hover-effect" class="w-button botonazul">Solicitar</a></div>
+                            <div id="EncargadoInfo" class="avisosv">El encargado en autorizar tus vacaciones será<br><span class="encargadodesign" id="EncargadoVacaciones">Nombre del encargado</span></div>
+                		</td>
+                    </tr>
+                </table>
               </div>
               <div id="Slide2SV" class="w-slide w-clearfix">
                 <div id="Texto3SV" class="texto3sv">Te mostramos las solicitudes realizadas por tus compañeros de departamento,
@@ -110,7 +256,7 @@
             <form id="AreaFormMiCuenta" name="email-form" data-name="Email Form" method="post" class="w-clearfix areaformcuenta"><img width="207" height="207" id="ImagenUsuarioEditar" src="images/perfil.gif" class="imagenusuarioeditar"><a href="#" id="CargarImagenUsuarioEditarLink" class="cargarimagenusuarioeditar">Cambiar Imagen</a>
 			  <input id="CargarImagenUsuarioEditarBoton" type="file" class="dontShow">
               <label id="NombresUsuarioLabel" for="NombresUsuarioEditar" class="cuenta1label">Nombre(s):</label>
-              <input id="NombresUsuarioEditar" type="text" placeholder="Nombre(s)" name="NombresUsuarioEditar" data-name="NombresUsuarioEditar" autofocus="autofocus" class="w-input input3c">
+              <input id="NombresUsuarioEditar" type="text" placeholder="Nombre(s)" name="NombresUsuarioEditar" data-name="NombresUsuarioEditar" autofocus class="w-input input3c">
               <label id="ApellidosUsuarioLabel" for="ApellidosUsuarioEditar" class="cuenta2label">Apellido(s):</label>
               <input id="ApellidosUsuarioEditar" type="text" placeholder="Apellido(s)" name="ApellidosUsuarioEditar" data-name="ApellidosUsuarioEditar" class="w-input input4c">
               <label id="EmaiUsuariolLabel" for="EmailUsuarioEditar" class="cuenta1label">Email:</label>
@@ -130,7 +276,6 @@
       </div>
     </div>
   </div>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
   <script type="text/javascript" src="js/webflow.js"></script>
   <!--[if lte IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/placeholders/3.0.2/placeholders.min.js"></script><![endif]-->
 </body>
