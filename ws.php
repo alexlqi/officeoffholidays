@@ -36,9 +36,6 @@ $ultimoDiaAnio=date("Y")."-12-31 23:59:59";
 		case 'onboardingCompleto':
 			checkOnBoarding();
 		break;
-		case 'agregarSolicitud':
-			agregarSolicitud(); //modificar ya que missia pase la correccion del SP
-		break;
 		case 'mostrarSolicitudesDept':
 			//falta
 		break;
@@ -68,6 +65,14 @@ $ultimoDiaAnio=date("Y")."-12-31 23:59:59";
 		case 'diasGenerados':
 			header("content-type: application/json");
 			diasGenerados();
+		break;
+		case 'agregarSolicitud':
+			header("content-type: application/json");
+			agregarSolicitud();
+		break;
+		case 'getSolicitudes':
+			header("content-type: application/json");
+			getSolicitudes();
 		break;
 		default:
 			echo 'lel';
@@ -121,7 +126,7 @@ $ultimoDiaAnio=date("Y")."-12-31 23:59:59";
 		$fechas["total"]=0;
 		if($result){
 			foreach($row as $i=>$d){
-				$fechas["dias"][$d["idSolicitud"]]=date("z",strtotime($d["fechaFin"]))*1-date("z",strtotime($d["fechaInicio"]))*1 +1;
+				$fechas["dias"][$d["idSolicitud"]]=date("z",strtotime($d["fechaFin"]))*1-date("z",strtotime($d["fechaInicio"]))*1 + 1;
 				$fechas["total"]+=$fechas["dias"][$d["idSolicitud"]];
 			}
 			$row=$fechas;
@@ -338,8 +343,11 @@ WHERE
 	{
 		$solicitud = $_POST["solicitud"];
 		$nuevoEstado = $_POST["nuevoEstado"];
+		
+		//chequeo de administrador
+		if(esAdmin()){return array("err"=>true,"msg"=>"El adminsitrador no puede autorizar sus propias vacaciones");}
+		
 		$mysqli = connect();
-
 		$result = $mysqli->query("call sp_autorizarSolicitud(".$solicitud.",".$nuevoEstado.");");
 		if (!$result) {
 			echo "Problema al hacer un query: " . $mysqli->error;
@@ -350,21 +358,65 @@ WHERE
 		}
 	}
 	
-	function agregarSolicitud()
+	function getSolicitudes()
 	{
-		$fechaInicio = $_POST["fechaInicio"];
-		$fechaFin = $_POST["fechaFin"];
-		$usuarioid = $_POST["usuario"];
+		global $estado;
+		$uid = $_SESSION["idUsuario"];
 		$mysqli = connect();
-
-		$result = $mysqli->query("call sp_registrarSolicitud('".$fechaInicio."','".$fechaFin."',".$usuarioid.","."5,0".");");
+		$result = $mysqli->query("call sp_getSolicitudes($uid);");
 		if (!$result) {
-			echo "Problema al hacer un query: " . $mysqli->error;
+			$r=array("err"=>true,"msg"=>"Problema al hacer un query: " . $mysqli->error);
 		}
 		else
 		{
-			echo 1;
+			$solicitudes=array();
+			$rows=mysqli_fetch_all($result,MYSQLI_ASSOC);
+			if(count($rows)<=0){$r=array("err"=>true,"msg"=>"No hay solicitudes para este usuario");}
+			foreach($rows as $d){
+				//se conformará
+				$solicitudes[$d["idSolicitud"]]["fechaInicio"]=$d["fechaInicio"];
+				$solicitudes[$d["idSolicitud"]]["fechaFin"]=$d["fechaFin"];
+				$solicitudes[$d["idSolicitud"]]["periodo"]="Del ".$d["fechaInicio"]." al ".$d["fechaFin"];
+				$solicitudes[$d["idSolicitud"]]["dias"]=dateDiff($d["fechaInicio"],$d["fechaFin"]);
+				$solicitudes[$d["idSolicitud"]]["estado"]=$estado[$d["estado"]];
+			}
+			$r=array("err"=>false,"data"=>$solicitudes);
 		}
+		echo json_encode($r);
+	}
+	
+	//esta funcion checa si el usuario es admin del depto o no
+	function esAdmin(){
+		$uid = $_SESSION["idUsuario"];
+		$mysqli = connect();
+
+		$result = $mysqli->query("call sp_esAdmin($uid);");
+		if (!$result) {
+			$r=mysqli_fetch_assoc($result);
+			return $r["admin"];
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	function agregarSolicitud()
+	{
+		$fechaInicio = fechaInversa($_POST["fechaInicio"]);
+		$fechaFin = fechaInversa($_POST["fechaFin"]);
+		$usuarioid = $_SESSION["idUsuario"];
+		$mysqli = connect();
+		
+		$result = $mysqli->query("call sp_registrarSolicitud('$fechaInicio','$fechaFin',$usuarioid);");
+		if (!$result) {
+			$r=array("err"=>true,"msg"=>"Problema al hacer un query: " . $mysqli->error);
+		}
+		else
+		{
+			$r=array("err"=>false);
+		}
+		echo json_encode($r);
 	}
 	
 	function uploadImage()

@@ -41,10 +41,12 @@
 		diasGenerados()
 		//dias usados
 		diasUsados();
+		//obtiene las solicitudes
+		getSolicitudes();
 		
 		$(window).keyup(function(e) {
             if(e.keyCode==13){
-				diasUsados();
+				
 			}
         });
 		
@@ -71,7 +73,31 @@
 		});
 		
 		$("#SolicitarVacacionesBoton").click(function(e) {
-			
+			//cuando den click aquí se mandará la solicitud
+			if(diffDias>0){
+				//si es mayor a 0 entonces se procesa
+				$.ajax({
+					url:'ws.php',
+					cache:false,
+					type:'POST',
+					data:{
+						action:'agregarSolicitud',
+						fechaInicio:fechas["#FechaInicial"],
+						fechaFin:fechas["#FechaFinal"],
+					},
+					success: function(r){
+						//console.log(r);
+						if(!r.err){
+							alert("Solicitud añadida correctamente");
+							location.reload();
+						}else{
+							alert(r.msg);
+						}
+					}
+				});
+			}else{
+				alert("verifique el rango de fechas");
+			}
         });
 		
 		if((localStorage.getItem("puesto") === null)||(localStorage.getItem("puesto")==1))
@@ -91,6 +117,26 @@
 			$("#CargarImagenUsuarioEditarBoton").change(newUserPic);
 		}
 	});
+	
+	function getSolicitudes(){
+		$.ajax({
+			url:'ws.php',
+			cache:false,
+			type:'POST',
+			data:{
+				action:'getSolicitudes',
+			},
+			success: function(r){
+				if(!r.err){
+					console.log(r.data);
+					$.each(r.data,function(i,v){
+						//i es el tr id y v es el objeto con los valores
+						$('<tr id="solicitud_'+i+'"><td>'+v.periodo+'</td><td>'+v.dias+'</td><td>'+v.estado+'</td></tr>').insertAfter("tr.DDA");
+					});
+				}
+			}
+		});
+	}
 	
 	function diasDisponibles(){
 		$.ajax({
@@ -168,7 +214,11 @@
 			var timeDiff = Math.abs(time2-time1);
 			diffDias = Math.ceil(timeDiff / (1000 * 3600 * 24))+1;
 		}else{
-			diffDias = 0;
+			if(fechas["#FechaInicial"]==fechas["#FechaFinal"]){
+				diffDias = 1;
+			}else{
+				diffDias = 0;
+			}
 		}
 	}
   </script>
@@ -199,8 +249,15 @@
       </div>
       <div id="MenuPanel" class="w-tab-content menupanel">
         <div id="MisSolicitudesTab" data-w-tab="MisSolicitudes" class="w-tab-pane w-clearfix tabpanel">
-          <h1 id="MisSolicitudesTitulo" class="tabpaneltitulo">Mis Solicitudes</h1>
-          <div id="MSLabel" class="mslabel">Días Solicitados &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Días Hábiles &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Estado de la solicitud</div>
+          <table id="misSolicitudes" class="tabla1SV">
+            <tr><td colspan="3"><h1 id="MisSolicitudesTitulo" class="tabpaneltitulo">Mis Solicitudes</h1></td></tr>
+            <tr>
+              <td><div class="mslabel">Días Solicitados</div></td>
+              <td><div class="mslabel">Días Hábiles</div></td>
+              <td><div class="mslabel">Estado de la solicitud</div></td>
+            </tr>
+            <tr class="DDA"></tr>
+          </table>
           <div id="DiasSolicitadosMSDiv" class="dsmsdiv">16/Abril/2016 a 18/Abril/2016</div>
           <div id="DiasHabilesMSDiv" class="dhmsdiv">2</div>
           <div id="EstadoSolicitudMSDiv" class="esmsdiv">Pendiente</div>
@@ -209,13 +266,6 @@
           <div data-animation="slide" data-duration="500" data-infinite="1" class="w-slider slider">
             <div class="w-slider-mask">
               <div id="Slide1SV" class="w-slide w-clearfix">
-              	<style>
-					#Slide1SV{
-					}
-					.tabla1SV{
-						margin:1% auto;
-					}
-                </style>
               	<table class="tabla1SV">
                 	<tr><td colspan="3"><h1 id="SolicitarVacacionesTitulo" class="tabpaneltitulo">Solicitar Vacaciones</h1></td></tr>
                 	<tr>

@@ -388,7 +388,6 @@
   bottom: 0px;
   display: block;
   width: 1150px;
-  margin-top:50px;
   margin-right: auto;
   margin-left: -57px;
   text-align: center;
@@ -462,7 +461,6 @@
   -webkit-transition: background-color 500ms ease, color 300ms ease;
   transition: background-color 500ms ease, color 300ms ease;
   cursor: pointer;
-  z-index:999;
 }
 
 .tablink.design1:hover {
@@ -578,7 +576,9 @@
 }
 
 .texto2sv {
+  position: static;
   display: block;
+  margin-top: 177px;
   font-family: 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;
   font-size: 15px;
   text-align: center;
@@ -648,7 +648,7 @@
 }
 
 .tabpanel {
-
+  height: 370px;
 }
 
 .tabcuentalink {
@@ -870,8 +870,9 @@
   bottom: 0px;
   display: block;
   width: 1150px;
-  height: 400px;
-  margin:0 auto;
+  height: 370px;
+  margin-top: -61px;
+  margin-left: 145px;
   clear: none;
   background-color: transparent;
   opacity: 1;
@@ -884,7 +885,7 @@
 }
 
 .slidenav {
-  display: none;
+  display: block;
   width: 130px;
   margin-right: auto;
   margin-bottom: 10px;
@@ -1037,7 +1038,6 @@
   font-size: 15px;
   font-style: italic;
   font-weight: 400;
-  padding: 0 5px;
 }
 
 .diasbloqueadoslabel {
@@ -1112,6 +1112,12 @@
 }
 
 .avisosv {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  width: 350px;
+  height: 70px;
+  margin: 28px 0px 8px 587px;
   padding: 15px 0px;
   font-family: 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;
   color: #333;
@@ -2021,10 +2027,3 @@ html.w-mod-js *[data-ix="scroll"] {
   -ms-transform: translate(0px, 35px);
   transform: translate(0px, 35px);
 }
-
-.redText{color:#BC0003;}
-.tabla1SV{margin:1% auto; min-width:600px;}
-.tabla1SV td, .tabla1SV th{
-	padding:0 1%;
-}
-tr.DDA{height:0;margin:0;padding:0;}
